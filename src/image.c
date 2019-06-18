@@ -1316,6 +1316,7 @@ image load_image_stb(char *filename, int channels)
 
 image load_image(char *filename, int w, int h, int c)
 {
+    printf("load image %s\n", filename);
 #ifdef OPENCV
     image out = load_image_cv(filename, c);
 #else

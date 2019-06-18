@@ -573,8 +573,10 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     char buff[256];
     char *input = buff;
     float nms=.45;
-    while(1){
-        if(filename){
+    FILE* file = fopen(filename, "r");
+    while (fgets(buff, sizeof(buff), file))
+    {
+        /*if(filename){
             strncpy(input, filename, 256);
         } else {
             printf("Enter Image Path: ");
@@ -582,7 +584,8 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             input = fgets(input, 256, stdin);
             if(!input) return;
             strtok(input, "\n");
-        }
+        }*/
+        strtok(input, "\n");
         image im = load_image_color(input,0,0);
         image sized = letterbox_image(im, net->w, net->h);
         //image sized = resize_image(im, net->w, net->h);
@@ -603,11 +606,12 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         if (nms) do_nms_sort(dets, nboxes, l.classes, nms);
         draw_detections(im, dets, nboxes, thresh, names, alphabet, l.classes);
         free_detections(dets, nboxes);
-        if(outfile){
-            save_image(im, outfile);
-        }
-        else{
-            save_image(im, "predictions");
+        if(!outfile)
+        {
+            strtok(input, ".");
+            strcat(input, "_prediction");
+            save_image(im, input);
+            printf("print image prediction %s\n", input);
 #ifdef OPENCV
             make_window("predictions", 512, 512, 0);
             show_image(im, "predictions", 0);
@@ -616,8 +620,9 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
 
         free_image(im);
         free_image(sized);
-        if (filename) break;
+        // if (filename) break;
     }
+    fclose(file);
 }
 
 /*
